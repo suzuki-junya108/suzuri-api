@@ -1,6 +1,20 @@
 import { createSwaggerSpec } from 'next-swagger-doc';
 
-export const getApiDocs = () => {
+interface SwaggerSpec {
+  openapi: string;
+  info: {
+    title: string;
+    version: string;
+    description: string;
+  };
+  servers?: Array<{
+    url: string;
+    description: string;
+  }>;
+  [key: string]: unknown;
+}
+
+export const getApiDocs = (): SwaggerSpec => {
   const spec = createSwaggerSpec({
     definition: {
       openapi: '3.0.0',
@@ -487,5 +501,5 @@ export const getApiDocs = () => {
     apiFolder: 'app/api',
   });
   
-  return spec;
+  return spec as SwaggerSpec;
 };

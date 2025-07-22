@@ -7,7 +7,7 @@ export async function OPTIONS() {
 }
 
 export async function GET(request: NextRequest) {
-  const spec = getApiDocs() as any;
+  const spec = getApiDocs();
   
   // Get the origin from the request to use the current domain
   const url = new URL(request.url);
