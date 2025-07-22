@@ -72,7 +72,7 @@ export interface CreateMaterialRequest {
     itemId: number;
     published?: boolean;
     resizeMode?: 'contain' | 'cover';
-    subMaterials?: Array<{
+    sub_materials?: Array<{ // snake_case for API
       texture: string; // Base64 data URI
       printSide: 'front' | 'back';
       enabled: boolean;
@@ -129,14 +129,14 @@ class SuzuriClient {
       const frontDataUri = `data:image/png;base64,${frontBase64}`;
       const backDataUri = `data:image/png;base64,${backBase64}`;
       
-      // For items with subMaterials, we don't set the main texture
+      // For Full Graphic T-shirt and Clear File, we need both texture and sub_materials
       payload = {
-        texture: '', // Empty texture for multi-sided items
+        texture: frontDataUri, // Main texture is the front image
         title: request.title,
         description: request.description || '',
         products: (request.products || []).map(product => ({
           ...product,
-          subMaterials: [
+          sub_materials: [ // Note: API uses snake_case
             {
               texture: frontDataUri,
               printSide: 'front',
