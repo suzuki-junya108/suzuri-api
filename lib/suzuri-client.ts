@@ -9,11 +9,31 @@ export interface SuzuriProduct {
   resizeMode: string;
   url: string;
   itemId?: number;
-  item?: SuzuriItem;
+  item?: {
+    id: number;
+    name: string;
+    humanizeName: string;
+    angles: string[];
+    published: boolean;
+  };
   material?: {
     id: number;
     user?: {
       name: string;
+    };
+  };
+  sampleItemVariant?: {
+    id: number;
+    price: number;
+    color: {
+      id: number;
+      name: string;
+      displayName: string;
+    };
+    size: {
+      id: number;
+      name: string;
+      displayName: string;
     };
   };
 }
