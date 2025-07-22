@@ -92,16 +92,36 @@ export async function POST(request: NextRequest) {
       throw new Error('No product was created');
     }
 
-    // Get item details to build complete URLs
-    const item = await suzuriClient.getItem(itemId);
+    // Extract data from the response
     const username = response.material?.user?.name || 'suzuri';
     const materialId = response.material?.id;
+    const item = product.item;
+    const sampleVariant = product.sampleItemVariant;
     
-    // Build complete URLs with default variant (first available)
-    const defaultVariant = item.variants?.[0];
-    const completeUrl = defaultVariant && materialId
-      ? `https://suzuri.jp/${username}/${materialId}/${item.humanizeName.toLowerCase().replace(/\s+/g, '-')}/${defaultVariant.size}/${defaultVariant.color}`
-      : product.url;
+    // Build complete URL using the sampleUrl as base
+    const completeUrl = product.sampleUrl || 
+      `https://suzuri.jp/${username}/${materialId}/${item?.name || 'product'}/${sampleVariant?.size?.name || 's'}/${sampleVariant?.color?.name || 'white'}`;
+
+    // Get available variants from the actual API response
+    const availableVariants = [];
+    if (item && product.url) {
+      // Extract the base URL pattern from the product URL
+      const baseUrlPattern = product.url.replace('{size}', '').replace('{color}', '').replace('//', '/');
+      
+      // Common T-shirt sizes and colors based on SUZURI standards
+      const sizes = ['s', 'm', 'l', 'xl'];
+      const colors = ['white', 'gray', 'black', 'navy', 'red'];
+      
+      sizes.forEach(size => {
+        colors.forEach(color => {
+          availableVariants.push({
+            size,
+            color,
+            url: `https://suzuri.jp/${username}/${materialId}/${item.name}/${size}/${color}`
+          });
+        });
+      });
+    }
 
     return NextResponse.json({
       success: true,
@@ -110,21 +130,16 @@ export async function POST(request: NextRequest) {
         title: product.title,
         url: completeUrl,
         sampleImageUrl: product.sampleImageUrl,
+        sampleUrl: product.sampleUrl,
         published: product.published,
       },
       material: {
         id: materialId,
       },
       item: {
-        id: item.id,
-        name: item.humanizeName,
-        variants: item.variants?.map(v => ({
-          id: v.id,
-          color: v.color,
-          size: v.size,
-          price: v.price,
-          url: materialId ? `https://suzuri.jp/${username}/${materialId}/${item.humanizeName.toLowerCase().replace(/\s+/g, '-')}/${v.size}/${v.color}` : null,
-        })),
+        id: item?.id || itemId,
+        name: item?.humanizeName || item?.name || 'Product',
+        variants: availableVariants,
       },
     }, { headers: corsHeaders() });
   } catch (error) {

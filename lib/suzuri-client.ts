@@ -109,11 +109,6 @@ class SuzuriClient {
     return response.data.product;
   }
 
-  async getItem(itemId: number): Promise<SuzuriItem> {
-    const response = await this.api.get(`/items/${itemId}`);
-    return response.data.item;
-  }
-
   async getAvailableItems(): Promise<SuzuriItem[]> {
     try {
       const response = await this.api.get('/items');
