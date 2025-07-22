@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import sharp from 'sharp';
 import SuzuriClient from '@/lib/suzuri-client';
+import { corsHeaders } from '@/lib/cors';
 
 export const runtime = 'nodejs';
 
@@ -10,6 +11,10 @@ const ALLOWED_FORMATS = ['image/jpeg', 'image/png', 'image/webp'];
 const suzuriClient = new SuzuriClient(
   process.env.SUZURI_API_KEY!
 );
+
+export async function OPTIONS(request: NextRequest) {
+  return new NextResponse(null, { status: 200, headers: corsHeaders() });
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -99,7 +104,7 @@ export async function POST(request: NextRequest) {
       material: {
         id: response.material?.id,
       },
-    });
+    }, { headers: corsHeaders() });
   } catch (error) {
     console.error('Product creation error:', error);
     return NextResponse.json(
@@ -107,7 +112,7 @@ export async function POST(request: NextRequest) {
         error: 'Failed to create product',
         details: error instanceof Error ? error.message : 'Unknown error'
       },
-      { status: 500 }
+      { status: 500, headers: corsHeaders() }
     );
   }
 }

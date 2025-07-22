@@ -2,11 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
 import sharp from 'sharp';
+import { corsHeaders } from '@/lib/cors';
 
 export const runtime = 'nodejs';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_FORMATS = ['image/jpeg', 'image/png', 'image/webp'];
+
+export async function OPTIONS(request: NextRequest) {
+  return new NextResponse(null, { status: 200, headers: corsHeaders() });
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -72,12 +77,12 @@ export async function POST(request: NextRequest) {
         height: metadata.height,
         format: 'png',
       },
-    });
+    }, { headers: corsHeaders() });
   } catch (error) {
     console.error('Upload error:', error);
     return NextResponse.json(
       { error: 'Failed to process upload' },
-      { status: 500 }
+      { status: 500, headers: corsHeaders() }
     );
   }
 }
