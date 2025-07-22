@@ -12,7 +12,7 @@ export const getApiDocs = () => {
       servers: [
         {
           url: process.env.NODE_ENV === 'production' 
-            ? 'https://your-domain.com'
+            ? 'https://api-suzuri.i4u.jp'
             : 'http://localhost:3000',
           description: process.env.NODE_ENV === 'production' 
             ? 'Production server'
