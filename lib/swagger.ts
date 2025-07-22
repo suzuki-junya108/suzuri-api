@@ -546,7 +546,7 @@ export const getApiDocs = (): SwaggerSpec => {
               {
                 name: 'materialId',
                 in: 'query',
-                description: 'Material ID to filter products by (filters results after fetching user products)',
+                description: 'Material ID to filter products by',
                 required: false,
                 schema: {
                   type: 'integer',
@@ -627,8 +627,7 @@ export const getApiDocs = (): SwaggerSpec => {
                           properties: {
                             limit: { type: 'number' },
                             offset: { type: 'number' },
-                            count: { type: 'number', description: 'Total number of products (or filtered count if materialId is provided)' },
-                            filtered: { type: 'boolean', description: 'True if results were filtered by materialId' },
+                            count: { type: 'number', description: 'Total number of products' },
                           },
                         },
                       },

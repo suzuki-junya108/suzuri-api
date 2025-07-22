@@ -33,21 +33,13 @@ export async function GET(request: NextRequest) {
     const result = await suzuriClient.getUserProducts(
       userId ? parseInt(userId) : undefined,
       userName || undefined,
+      materialId ? parseInt(materialId) : undefined,
       limit,
       offset
     );
     
-    // Filter by materialId if provided
-    let filteredProducts = result.products;
-    if (materialId) {
-      const materialIdNum = parseInt(materialId);
-      filteredProducts = result.products.filter(product => 
-        product.material?.id === materialIdNum
-      );
-    }
-    
     // Format response with complete URLs
-    const productsWithUrls = filteredProducts.map(product => {
+    const productsWithUrls = result.products.map(product => {
       const username = product.material?.user?.name || userName || 'suzuri';
       const materialId = product.material?.id;
       const sampleVariant = product.sampleItemVariant;
@@ -84,11 +76,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       products: productsWithUrls,
-      pagination: {
-        ...result.pagination,
-        count: materialId ? productsWithUrls.length : result.pagination.count,
-        filtered: materialId ? true : false,
-      },
+      pagination: result.pagination,
     }, { headers: corsHeaders() });
   } catch (error) {
     console.error('Failed to fetch user products:', error);

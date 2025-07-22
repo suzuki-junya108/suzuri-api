@@ -147,7 +147,7 @@ class SuzuriClient {
     }
   }
 
-  async getUserProducts(userId?: number, userName?: string, limit: number = 20, offset: number = 0): Promise<{
+  async getUserProducts(userId?: number, userName?: string, materialId?: number, limit: number = 20, offset: number = 0): Promise<{
     products: SuzuriProduct[];
     pagination: {
       limit: number;
@@ -165,6 +165,10 @@ class SuzuriClient {
         params.userId = userId;
       } else if (userName) {
         params.userName = userName;
+      }
+      
+      if (materialId) {
+        params.materialId = materialId;
       }
       
       const response = await this.api.get('/products', { params });
