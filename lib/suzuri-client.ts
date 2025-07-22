@@ -138,11 +138,6 @@ class SuzuriClient {
           ...product,
           sub_materials: [ // Note: API uses snake_case
             {
-              texture: frontDataUri,
-              printSide: 'front',
-              enabled: true,
-            },
-            {
               texture: backDataUri,
               printSide: 'back',
               enabled: true,
