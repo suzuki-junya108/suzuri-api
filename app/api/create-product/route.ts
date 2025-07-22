@@ -92,17 +92,39 @@ export async function POST(request: NextRequest) {
       throw new Error('No product was created');
     }
 
+    // Get item details to build complete URLs
+    const item = await suzuriClient.getItem(itemId);
+    const username = response.material?.user?.name || 'suzuri';
+    const materialId = response.material?.id;
+    
+    // Build complete URLs with default variant (first available)
+    const defaultVariant = item.variants?.[0];
+    const completeUrl = defaultVariant && materialId
+      ? `https://suzuri.jp/${username}/${materialId}/${item.humanizeName.toLowerCase().replace(/\s+/g, '-')}/${defaultVariant.size}/${defaultVariant.color}`
+      : product.url;
+
     return NextResponse.json({
       success: true,
       product: {
         id: product.id,
         title: product.title,
-        url: product.url,
+        url: completeUrl,
         sampleImageUrl: product.sampleImageUrl,
         published: product.published,
       },
       material: {
-        id: response.material?.id,
+        id: materialId,
+      },
+      item: {
+        id: item.id,
+        name: item.humanizeName,
+        variants: item.variants?.map(v => ({
+          id: v.id,
+          color: v.color,
+          size: v.size,
+          price: v.price,
+          url: materialId ? `https://suzuri.jp/${username}/${materialId}/${item.humanizeName.toLowerCase().replace(/\s+/g, '-')}/${v.size}/${v.color}` : null,
+        })),
       },
     }, { headers: corsHeaders() });
   } catch (error) {

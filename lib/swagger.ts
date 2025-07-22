@@ -96,9 +96,19 @@ export const getApiDocs = (): SwaggerSpec => {
                 properties: {
                   id: { type: 'number' },
                   title: { type: 'string' },
-                  url: { type: 'string' },
+                  url: { 
+                    type: 'string',
+                    description: 'Complete URL to access the product with default color/size',
+                    example: 'https://suzuri.jp/username/123456/t-shirt/s/white',
+                  },
                   sampleImageUrl: { type: 'string' },
                   published: { type: 'boolean' },
+                },
+              },
+              material: {
+                type: 'object',
+                properties: {
+                  id: { type: 'number' },
                 },
               },
               item: {
@@ -115,6 +125,11 @@ export const getApiDocs = (): SwaggerSpec => {
                         color: { type: 'string' },
                         size: { type: 'string' },
                         price: { type: 'number' },
+                        url: { 
+                          type: 'string',
+                          description: 'Complete URL for this specific variant',
+                          example: 'https://suzuri.jp/username/123456/t-shirt/m/black',
+                        },
                       },
                     },
                   },
@@ -138,9 +153,19 @@ export const getApiDocs = (): SwaggerSpec => {
                 properties: {
                   id: { type: 'number' },
                   title: { type: 'string' },
-                  url: { type: 'string' },
+                  url: { 
+                    type: 'string',
+                    description: 'Complete URL to access the product with default color/size',
+                    example: 'https://suzuri.jp/username/123456/t-shirt/s/white',
+                  },
                   sampleImageUrl: { type: 'string' },
                   published: { type: 'boolean' },
+                },
+              },
+              material: {
+                type: 'object',
+                properties: {
+                  id: { type: 'number' },
                 },
               },
               item: {
@@ -157,18 +182,14 @@ export const getApiDocs = (): SwaggerSpec => {
                         color: { type: 'string' },
                         size: { type: 'string' },
                         price: { type: 'number' },
+                        url: { 
+                          type: 'string',
+                          description: 'Complete URL for this specific variant',
+                          example: 'https://suzuri.jp/username/123456/t-shirt/m/black',
+                        },
                       },
                     },
                   },
-                },
-              },
-              uploadedImage: {
-                type: 'object',
-                properties: {
-                  id: { type: 'number' },
-                  url: { type: 'string' },
-                  width: { type: 'number' },
-                  height: { type: 'number' },
                 },
               },
             },

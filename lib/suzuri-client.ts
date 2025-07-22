@@ -8,6 +8,14 @@ export interface SuzuriProduct {
   published: boolean;
   resizeMode: string;
   url: string;
+  itemId?: number;
+  item?: SuzuriItem;
+  material?: {
+    id: number;
+    user?: {
+      name: string;
+    };
+  };
 }
 
 export interface SuzuriItem {
@@ -42,7 +50,11 @@ export interface CreateMaterialRequest {
 }
 
 export interface CreateMaterialResponse {
-  material: SuzuriMaterial;
+  material: SuzuriMaterial & {
+    user?: {
+      name: string;
+    };
+  };
   products: SuzuriProduct[];
 }
 
@@ -94,7 +106,12 @@ class SuzuriClient {
 
   async getProduct(productId: number): Promise<SuzuriProduct> {
     const response = await this.api.get(`/products/${productId}`);
-    return response.data;
+    return response.data.product;
+  }
+
+  async getItem(itemId: number): Promise<SuzuriItem> {
+    const response = await this.api.get(`/items/${itemId}`);
+    return response.data.item;
   }
 
   async getAvailableItems(): Promise<SuzuriItem[]> {
