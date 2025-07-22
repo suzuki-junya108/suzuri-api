@@ -76,6 +76,7 @@ export interface CreateMaterialRequest {
       texture: string; // Base64 data URI
       printSide: 'front' | 'back';
       enabled: boolean;
+      resizeMode?: 'contain' | 'cover';
     }>;
   }>;
 }
@@ -141,6 +142,7 @@ class SuzuriClient {
               texture: backDataUri,
               printSide: 'back',
               enabled: true,
+              resizeMode: product.resizeMode || 'cover', // Apply same resize mode to back
             },
           ],
         })),
