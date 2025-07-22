@@ -26,11 +26,14 @@ export async function POST(request: NextRequest) {
     const title = formData.get('title') as string;
     const description = formData.get('description') as string | null;
     const published = formData.get('published') !== 'false';
-    const resizeMode = (formData.get('resizeMode') as 'contain' | 'cover') || 'contain';
     const itemId = parseInt(formData.get('itemId') as string) || 1; // Default to T-shirt
     
     // Check if this is a Full Graphic T-shirt or Clear File
     const requiresFrontBack = itemId === 8 || itemId === 101;
+    
+    // Use 'cover' mode for Full Graphic items, 'contain' for others
+    const resizeMode = (formData.get('resizeMode') as 'contain' | 'cover') || 
+                      (requiresFrontBack ? 'cover' : 'contain');
     
     // Validate required fields
     if (!file) {
@@ -71,8 +74,11 @@ export async function POST(request: NextRequest) {
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
+    
+    // Use larger size for Full Graphic items
+    const targetSize = requiresFrontBack ? 3000 : 2000;
     const processedImage = await sharp(buffer)
-      .resize(2000, 2000, {
+      .resize(targetSize, targetSize, {
         fit: 'inside',
         withoutEnlargement: true,
       })
@@ -99,8 +105,10 @@ export async function POST(request: NextRequest) {
 
       const bytesBack = await fileBack.arrayBuffer();
       const bufferBack = Buffer.from(bytesBack);
+      
+      // Use larger size for back image to prevent it from appearing small
       const processedImageBack = await sharp(bufferBack)
-        .resize(2000, 2000, {
+        .resize(3000, 3000, {
           fit: 'inside',
           withoutEnlargement: true,
         })
