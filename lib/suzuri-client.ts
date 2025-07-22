@@ -9,6 +9,10 @@ export interface SuzuriProduct {
   resizeMode: string;
   url: string;
   itemId?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  price?: number;
+  priceWithTax?: number;
   item?: {
     id: number;
     name: string;
@@ -18,6 +22,8 @@ export interface SuzuriProduct {
   };
   material?: {
     id: number;
+    title?: string;
+    thumbnailUrl?: string;
     user?: {
       name: string;
     };
@@ -136,6 +142,43 @@ class SuzuriClient {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error('Failed to fetch items:', error.response?.data);
+      }
+      throw error;
+    }
+  }
+
+  async getUserProducts(userId?: number, userName?: string, limit: number = 20, offset: number = 0): Promise<{
+    products: SuzuriProduct[];
+    pagination: {
+      limit: number;
+      offset: number;
+      count: number;
+    };
+  }> {
+    try {
+      const params: Record<string, string | number> = {
+        limit,
+        offset,
+      };
+      
+      if (userId) {
+        params.userId = userId;
+      } else if (userName) {
+        params.userName = userName;
+      }
+      
+      const response = await this.api.get('/products', { params });
+      return {
+        products: response.data.products || [],
+        pagination: {
+          limit: response.data.limit || limit,
+          offset: response.data.offset || offset,
+          count: response.data.count || 0,
+        },
+      };
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error('Failed to fetch user products:', error.response?.data);
       }
       throw error;
     }

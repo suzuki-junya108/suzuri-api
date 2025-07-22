@@ -517,6 +517,137 @@ export const getApiDocs = (): SwaggerSpec => {
             },
           },
         },
+        '/api/my-products': {
+          get: {
+            summary: 'Get products created by a specific user',
+            description: 'Retrieve a paginated list of products created by a specific user account. You must provide either userId or userName.',
+            tags: ['Products'],
+            parameters: [
+              {
+                name: 'userId',
+                in: 'query',
+                description: 'User ID to filter products by',
+                required: false,
+                schema: {
+                  type: 'integer',
+                  example: 536,
+                },
+              },
+              {
+                name: 'userName',
+                in: 'query',
+                description: 'Username to filter products by',
+                required: false,
+                schema: {
+                  type: 'string',
+                  example: '108',
+                },
+              },
+              {
+                name: 'limit',
+                in: 'query',
+                description: 'Number of products to return (default: 20)',
+                required: false,
+                schema: {
+                  type: 'integer',
+                  default: 20,
+                  minimum: 1,
+                  maximum: 100,
+                },
+              },
+              {
+                name: 'offset',
+                in: 'query',
+                description: 'Number of products to skip (for pagination)',
+                required: false,
+                schema: {
+                  type: 'integer',
+                  default: 0,
+                  minimum: 0,
+                },
+              },
+            ],
+            responses: {
+              '200': {
+                description: 'List of user products',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        success: { type: 'boolean' },
+                        products: {
+                          type: 'array',
+                          items: {
+                            type: 'object',
+                            properties: {
+                              id: { type: 'number' },
+                              title: { type: 'string' },
+                              url: { 
+                                type: 'string',
+                                description: 'Complete URL to access the product',
+                                example: 'https://suzuri.jp/108/18234786/t-shirt/s/white',
+                              },
+                              sampleImageUrl: { type: 'string' },
+                              published: { type: 'boolean' },
+                              createdAt: { type: 'string', format: 'date-time' },
+                              updatedAt: { type: 'string', format: 'date-time' },
+                              price: { type: 'number' },
+                              priceWithTax: { type: 'number' },
+                              item: {
+                                type: 'object',
+                                properties: {
+                                  id: { type: 'number' },
+                                  name: { type: 'string' },
+                                },
+                              },
+                              material: {
+                                type: 'object',
+                                properties: {
+                                  id: { type: 'number' },
+                                  title: { type: 'string' },
+                                  thumbnailUrl: { type: 'string' },
+                                },
+                              },
+                            },
+                          },
+                        },
+                        pagination: {
+                          type: 'object',
+                          properties: {
+                            limit: { type: 'number' },
+                            offset: { type: 'number' },
+                            count: { type: 'number', description: 'Total number of products' },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              '400': {
+                description: 'Bad request - missing userId or userName',
+                content: {
+                  'application/json': {
+                    schema: {
+                      $ref: '#/components/schemas/ErrorResponse',
+                    },
+                  },
+                },
+              },
+              '500': {
+                description: 'Internal server error',
+                content: {
+                  'application/json': {
+                    schema: {
+                      $ref: '#/components/schemas/ErrorResponse',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     },
     apiFolder: 'app/api',
