@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import SuzuriClient from '@/lib/suzuri-client';
 import { corsHeaders } from '@/lib/cors';
 

@@ -79,7 +79,12 @@ export async function POST(request: NextRequest) {
       `https://suzuri.jp/${username}/${materialId}/${item?.name || 'product'}/${sampleVariant?.size?.name || 's'}/${sampleVariant?.color?.name || 'white'}`;
 
     // Get available variants from the actual API response
-    const availableVariants = [];
+    const availableVariants: Array<{
+      size: string;
+      color: string;
+      url: string;
+    }> = [];
+    
     if (item && product.url) {
       // Common T-shirt sizes and colors based on SUZURI standards
       const sizes = ['s', 'm', 'l', 'xl'];
