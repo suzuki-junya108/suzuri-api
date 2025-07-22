@@ -123,14 +123,15 @@ class SuzuriClient {
         ],
       };
     } else {
-      // Front and back images
+      // Front and back images for items that support multiple print sides
       const frontBase64 = imageBuffer.front.toString('base64');
       const backBase64 = imageBuffer.back.toString('base64');
       const frontDataUri = `data:image/png;base64,${frontBase64}`;
       const backDataUri = `data:image/png;base64,${backBase64}`;
       
+      // For items with subMaterials, we don't set the main texture
       payload = {
-        texture: frontDataUri,
+        texture: '', // Empty texture for multi-sided items
         title: request.title,
         description: request.description || '',
         products: (request.products || []).map(product => ({
