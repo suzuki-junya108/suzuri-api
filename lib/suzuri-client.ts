@@ -72,6 +72,11 @@ export interface CreateMaterialRequest {
     itemId: number;
     published?: boolean;
     resizeMode?: 'contain' | 'cover';
+    subMaterials?: Array<{
+      texture: string; // Base64 data URI
+      printSide: 'front' | 'back';
+      enabled: boolean;
+    }>;
   }>;
 }
 
@@ -97,23 +102,54 @@ class SuzuriClient {
     });
   }
 
-  async createMaterial(imageBuffer: Buffer, request: Omit<CreateMaterialRequest, 'texture'>): Promise<CreateMaterialResponse> {
-    // Convert image buffer to base64 data URI
-    const base64Image = imageBuffer.toString('base64');
-    const dataUri = `data:image/png;base64,${base64Image}`;
-
-    const payload = {
-      texture: dataUri,
-      title: request.title,
-      description: request.description || '',
-      products: request.products || [
-        {
-          itemId: 1, // T-shirt
-          published: true,
-          resizeMode: 'contain',
-        },
-      ],
-    };
+  async createMaterial(imageBuffer: Buffer | { front: Buffer; back: Buffer }, request: Omit<CreateMaterialRequest, 'texture'>): Promise<CreateMaterialResponse> {
+    let payload: CreateMaterialRequest;
+    
+    if (Buffer.isBuffer(imageBuffer)) {
+      // Single image
+      const base64Image = imageBuffer.toString('base64');
+      const dataUri = `data:image/png;base64,${base64Image}`;
+      
+      payload = {
+        texture: dataUri,
+        title: request.title,
+        description: request.description || '',
+        products: request.products || [
+          {
+            itemId: 1, // T-shirt
+            published: true,
+            resizeMode: 'contain',
+          },
+        ],
+      };
+    } else {
+      // Front and back images
+      const frontBase64 = imageBuffer.front.toString('base64');
+      const backBase64 = imageBuffer.back.toString('base64');
+      const frontDataUri = `data:image/png;base64,${frontBase64}`;
+      const backDataUri = `data:image/png;base64,${backBase64}`;
+      
+      payload = {
+        texture: frontDataUri,
+        title: request.title,
+        description: request.description || '',
+        products: (request.products || []).map(product => ({
+          ...product,
+          subMaterials: [
+            {
+              texture: frontDataUri,
+              printSide: 'front',
+              enabled: true,
+            },
+            {
+              texture: backDataUri,
+              printSide: 'back',
+              enabled: true,
+            },
+          ],
+        })),
+      };
+    }
 
     try {
       const response = await this.api.post('/materials', payload);

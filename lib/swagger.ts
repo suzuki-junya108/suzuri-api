@@ -389,7 +389,12 @@ export const getApiDocs = (): SwaggerSpec => {
                       file: {
                         type: 'string',
                         format: 'binary',
-                        description: 'Image file (JPEG, PNG, or WebP)',
+                        description: 'Front image file (JPEG, PNG, or WebP)',
+                      },
+                      fileBack: {
+                        type: 'string',
+                        format: 'binary',
+                        description: 'Back image file (required for Full Graphic T-shirt ID:8 and Clear File ID:101)',
                       },
                       title: {
                         type: 'string',
@@ -413,7 +418,7 @@ export const getApiDocs = (): SwaggerSpec => {
                       itemId: {
                         type: 'integer',
                         default: 1,
-                        description: 'Item type ID. Common types: 1=Tシャツ, 2=パーカー, 3=トートバッグ, 6=マグカップ, 14=ステッカー, 20=アクリルブロック, etc. See /api/items for full list.',
+                        description: 'Item type ID. Common types: 1=Tシャツ, 2=パーカー, 3=トートバッグ, 6=マグカップ, 8=フルグラフィックTシャツ (requires front/back), 14=ステッカー, 20=アクリルブロック, 101=クリアファイル (requires front/back), etc. See /api/items for full list.',
                         example: 1,
                       },
                     },

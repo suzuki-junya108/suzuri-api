@@ -21,17 +21,28 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     
     // Extract form data
-    const file = formData.get('file') as File;
+    const file = formData.get('file') as File | null;
+    const fileBack = formData.get('fileBack') as File | null;
     const title = formData.get('title') as string;
     const description = formData.get('description') as string | null;
     const published = formData.get('published') !== 'false';
     const resizeMode = (formData.get('resizeMode') as 'contain' | 'cover') || 'contain';
     const itemId = parseInt(formData.get('itemId') as string) || 1; // Default to T-shirt
     
+    // Check if this is a Full Graphic T-shirt or Clear File
+    const requiresFrontBack = itemId === 8 || itemId === 101;
+    
     // Validate required fields
     if (!file) {
       return NextResponse.json(
         { error: 'No file uploaded' },
+        { status: 400 }
+      );
+    }
+    
+    if (requiresFrontBack && !fileBack) {
+      return NextResponse.json(
+        { error: 'Back image is required for Full Graphic T-shirt and Clear File' },
         { status: 400 }
       );
     }
@@ -43,7 +54,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate file type
+    // Process front image
     if (!ALLOWED_FORMATS.includes(file.type)) {
       return NextResponse.json(
         { error: 'Invalid file format. Allowed formats: JPEG, PNG, WebP' },
@@ -51,7 +62,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate file size
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
         { error: 'File size exceeds maximum limit of 10MB' },
@@ -59,11 +69,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Convert File to Buffer
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-
-    // Process image with sharp
     const processedImage = await sharp(buffer)
       .resize(2000, 2000, {
         fit: 'inside',
@@ -72,8 +79,44 @@ export async function POST(request: NextRequest) {
       .png()
       .toBuffer();
 
+    let imageData: Buffer | { front: Buffer; back: Buffer };
+    
+    if (requiresFrontBack && fileBack) {
+      // Validate back image
+      if (!ALLOWED_FORMATS.includes(fileBack.type)) {
+        return NextResponse.json(
+          { error: 'Invalid back file format. Allowed formats: JPEG, PNG, WebP' },
+          { status: 400 }
+        );
+      }
+
+      if (fileBack.size > MAX_FILE_SIZE) {
+        return NextResponse.json(
+          { error: 'Back file size exceeds maximum limit of 10MB' },
+          { status: 400 }
+        );
+      }
+
+      const bytesBack = await fileBack.arrayBuffer();
+      const bufferBack = Buffer.from(bytesBack);
+      const processedImageBack = await sharp(bufferBack)
+        .resize(2000, 2000, {
+          fit: 'inside',
+          withoutEnlargement: true,
+        })
+        .png()
+        .toBuffer();
+
+      imageData = {
+        front: processedImage,
+        back: processedImageBack,
+      };
+    } else {
+      imageData = processedImage;
+    }
+
     // Create material and product on SUZURI
-    const response = await suzuriClient.createMaterial(processedImage, {
+    const response = await suzuriClient.createMaterial(imageData, {
       title,
       description: description || undefined,
       products: [
