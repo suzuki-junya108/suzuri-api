@@ -31,9 +31,17 @@ export async function POST(request: NextRequest) {
     // Check if this is a Full Graphic T-shirt or Clear File
     const requiresFrontBack = itemId === 8 || itemId === 101;
     
-    // Use 'cover' mode for Full Graphic items, 'contain' for others
-    const resizeMode = (formData.get('resizeMode') as 'contain' | 'cover') || 
-                      (requiresFrontBack ? 'cover' : 'contain');
+    // Prioritize request resizeMode, fallback to defaults based on item type
+    const requestedResizeMode = formData.get('resizeMode') as string | null;
+    let resizeMode: 'contain' | 'cover';
+    
+    if (requestedResizeMode && ['contain', 'cover'].includes(requestedResizeMode)) {
+      // Use the explicitly requested resizeMode if valid
+      resizeMode = requestedResizeMode as 'contain' | 'cover';
+    } else {
+      // Fallback to defaults based on item type only if no valid request value
+      resizeMode = requiresFrontBack ? 'cover' : 'contain';
+    }
     
     // Validate required fields
     if (!file) {
